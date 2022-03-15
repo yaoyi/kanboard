@@ -6,6 +6,23 @@ use Kanboard\Core\Base;
 
 class TaskReorderModel extends Base
 {
+    public function reorderById($projectID, $swimlaneID, $columnID, $direction)
+    {
+        $this->db->startTransaction();
+
+        $taskIDs = $this->db->table(TaskModel::TABLE)
+            ->eq('project_id', $projectID)
+            ->eq('swimlane_id', $swimlaneID)
+            ->eq('column_id', $columnID)
+            ->orderBy('id', $direction)
+            ->asc('id')
+            ->findAllByColumn('id');
+
+        $this->reorderTasks($taskIDs);
+
+        $this->db->closeTransaction();
+    }
+
     public function reorderByPriority($projectID, $swimlaneID, $columnID, $direction)
     {
         $this->db->startTransaction();
